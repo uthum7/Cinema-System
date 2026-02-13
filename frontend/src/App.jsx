@@ -24,8 +24,7 @@ import ReportsAnalyticsPage from './pages/admin/ReportsAnalyticsPage';
 // Import layout components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-
-// Ensure Tailwind CSS is configured and imported in index.css
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -39,25 +38,95 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/movies" element={<MoviesPage />} />
             <Route path="/schedule" element={<SchedulePage />} />
-            <Route path="/booking/:showtimeId" element={<BookingPage />} />
 
             {/* Authentication Routes */}
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/signin" element={<SignInPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-            {/* Admin Routes */}
-            <Route path="/admin" element={<AdminDashboardPage />} /> {/* Main admin landing */}
-            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-            <Route path="/admin/movies" element={<MoviesManagementPage />} />
-            <Route path="/admin/schedule" element={<ScheduleManagementPage />} />
-            <Route path="/admin/bookings" element={<BookingManagementPage />} />
-            <Route path="/admin/users" element={<UserManagementPage />} />
-            <Route path="/admin/reports" element={<ReportsAnalyticsPage />} />
+            {/* Protected Customer Routes */}
+            <Route 
+              path="/booking/:showtimeId" 
+              element={
+                <ProtectedRoute>
+                  <BookingPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/payment" 
+              element={
+                <ProtectedRoute>
+                  <PaymentPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/account" 
+              element={
+                <ProtectedRoute>
+                  <UserAccountPage />
+                </ProtectedRoute>
+              } 
+            />
 
-            {/* Protected Routes (Client Side) - would require auth check */}
-            <Route path="/payment" element={<PaymentPage />} />
-            <Route path="/account" element={<UserAccountPage />} />
+            {/* Protected Admin Routes - Admin Only */}
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminDashboardPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/dashboard" 
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminDashboardPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/movies" 
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <MoviesManagementPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/schedule" 
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <ScheduleManagementPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/bookings" 
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <BookingManagementPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/users" 
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <UserManagementPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/reports" 
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <ReportsAnalyticsPage />
+                </ProtectedRoute>
+              } 
+            />
 
             {/* Catch-all for 404 Not Found */}
             <Route path="*" element={

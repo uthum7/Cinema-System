@@ -1,87 +1,153 @@
 // frontend/src/components/Navbar.jsx
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Film, Menu, X, User, Ticket } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Film, Menu, X, User, LogOut, Ticket, Calendar, Home } from 'lucide-react';
 
 const Navbar = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const hideNavbar = location.pathname === '/signup' ||
-                     location.pathname === '/signin' ||
-                     location.pathname === '/forgot-password';
+  // Mock user - replace with actual auth context
+  const [user, setUser] = useState(null); // Set to user object when logged in
 
-  if (hideNavbar) {
-    return null;
-  }
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
 
-  const isLoggedIn = false;
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  const navLinks = [
-    { path: '/', label: 'Home' },
-    { path: '/movies', label: 'Movies' },
-    { path: '/schedule', label: 'Schedule' },
-    { path: '/account', label: 'My Account' },
-  ];
+  const handleLogout = () => {
+    // Add logout logic here
+    setUser(null);
+    navigate('/');
+  };
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   return (
-    <nav className="fixed w-full top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      isScrolled 
+        ? 'bg-black/95 backdrop-blur-xl shadow-lg shadow-black/50 border-b border-white/10' 
+        : 'bg-transparent'
+    }`}>
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
-              <Film className="w-8 h-8 text-white relative" />
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-600 to-rose-600 blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
+              <div className="relative w-11 h-11 bg-gradient-to-br from-amber-600 to-rose-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Film className="w-6 h-6 text-white" />
+              </div>
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+            <span className="text-2xl font-black bg-gradient-to-r from-amber-400 via-rose-400 to-amber-400 bg-clip-text text-transparent">
               CinePlex
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`text-gray-300 hover:text-white transition-all duration-300 hover:scale-105 font-medium ${
-                  location.pathname === link.path ? 'text-white' : ''
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="hidden md:flex items-center space-x-1">
+            <Link
+              to="/"
+              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center space-x-2 ${
+                isActive('/') 
+                  ? 'bg-gradient-to-r from-amber-600/20 to-rose-600/20 text-white border border-amber-500/30' 
+                  : 'text-gray-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Home className="w-4 h-4" />
+              <span>Home</span>
+            </Link>
+            <Link
+              to="/movies"
+              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center space-x-2 ${
+                isActive('/movies') 
+                  ? 'bg-gradient-to-r from-amber-600/20 to-rose-600/20 text-white border border-amber-500/30' 
+                  : 'text-gray-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Film className="w-4 h-4" />
+              <span>Movies</span>
+            </Link>
+            <Link
+              to="/schedule"
+              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center space-x-2 ${
+                isActive('/schedule') 
+                  ? 'bg-gradient-to-r from-amber-600/20 to-rose-600/20 text-white border border-amber-500/30' 
+                  : 'text-gray-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Schedule</span>
+            </Link>
+          </div>
 
-            {!isLoggedIn ? (
+          {/* Right Side Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center space-x-3 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all"
+                >
+                  <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-rose-500 rounded-lg flex items-center justify-center">
+                    <User className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-white font-semibold">{user.name}</span>
+                </button>
+
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-gray-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+                    <Link
+                      to="/account"
+                      className="block px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-white transition-colors flex items-center space-x-2"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      <User className="w-4 h-4" />
+                      <span>My Account</span>
+                    </Link>
+                    <Link
+                      to="/account/bookings"
+                      className="block px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-white transition-colors flex items-center space-x-2"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      <Ticket className="w-4 h-4" />
+                      <span>My Bookings</span>
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 text-red-400 hover:bg-red-500/10 transition-colors flex items-center space-x-2 border-t border-white/10"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
               <>
                 <Link
                   to="/signin"
-                  className="text-gray-300 hover:text-white transition-all duration-300 font-medium"
+                  className="px-5 py-2.5 text-white font-semibold hover:text-amber-400 transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/signup"
-                  className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105"
+                  className="px-6 py-2.5 bg-gradient-to-r from-amber-600 to-rose-600 rounded-xl font-bold hover:shadow-lg hover:shadow-amber-500/50 transition-all duration-300 hover:scale-105"
                 >
                   Sign Up
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/booking"
-                  className="flex items-center space-x-2 px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full font-semibold hover:shadow-lg hover:shadow-green-500/50 transition-all duration-300 hover:scale-105"
-                >
-                  <Ticket className="w-4 h-4" />
-                  <span>Book Now</span>
-                </Link>
-                <Link
-                  to="/account"
-                  className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105"
-                >
-                  <User className="w-5 h-5" />
                 </Link>
               </>
             )}
@@ -89,60 +155,94 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="lg:hidden text-white p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
-      </div>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden bg-black/95 backdrop-blur-xl border-t border-white/10 animate-in slide-in-from-top duration-300">
-          <div className="px-6 py-4 space-y-4">
-            {navLinks.map((link) => (
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden py-4 border-t border-white/10 bg-black/95 backdrop-blur-xl">
+            <div className="space-y-2">
               <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block text-gray-300 hover:text-white transition-colors py-2 ${
-                  location.pathname === link.path ? 'text-white font-semibold' : ''
+                to="/"
+                className={`block px-4 py-3 rounded-lg font-semibold transition-all ${
+                  isActive('/') 
+                    ? 'bg-gradient-to-r from-amber-600/20 to-rose-600/20 text-white' 
+                    : 'text-gray-300 hover:bg-white/5'
                 }`}
+                onClick={() => setIsMobileMenuOpen(false)}
               >
-                {link.label}
+                Home
               </Link>
-            ))}
-
-            {!isLoggedIn ? (
-              <>
-                <Link
-                  to="/signin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-gray-300 hover:text-white transition-colors py-2"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/signup"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block w-full text-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-semibold"
-                >
-                  Sign Up
-                </Link>
-              </>
-            ) : (
               <Link
-                to="/booking"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block w-full text-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full font-semibold"
+                to="/movies"
+                className={`block px-4 py-3 rounded-lg font-semibold transition-all ${
+                  isActive('/movies') 
+                    ? 'bg-gradient-to-r from-amber-600/20 to-rose-600/20 text-white' 
+                    : 'text-gray-300 hover:bg-white/5'
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
               >
-                Book Now
+                Movies
               </Link>
-            )}
+              <Link
+                to="/schedule"
+                className={`block px-4 py-3 rounded-lg font-semibold transition-all ${
+                  isActive('/schedule') 
+                    ? 'bg-gradient-to-r from-amber-600/20 to-rose-600/20 text-white' 
+                    : 'text-gray-300 hover:bg-white/5'
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Schedule
+              </Link>
+
+              <div className="border-t border-white/10 pt-4 mt-4">
+                {user ? (
+                  <>
+                    <Link
+                      to="/account"
+                      className="block px-4 py-3 text-gray-300 hover:bg-white/5 rounded-lg"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      My Account
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-lg"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <div className="space-y-2">
+                    <Link
+                      to="/signin"
+                      className="block px-4 py-3 text-center text-white font-semibold hover:bg-white/5 rounded-lg"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className="block px-4 py-3 text-center bg-gradient-to-r from-amber-600 to-rose-600 rounded-xl font-bold"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </nav>
   );
 };

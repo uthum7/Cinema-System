@@ -1,304 +1,273 @@
 // frontend/src/pages/MoviesPage.jsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, Filter, Star, Play, Calendar, Globe, X, TrendingUp } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Film, Star, Clock, Calendar, Search, Filter, Play, ChevronRight, Sparkles } from 'lucide-react';
 
 const MoviesPage = () => {
-  const [allMovies, setAllMovies] = useState([]);
-  const [filteredMovies, setFilteredMovies] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({ genre: '', year: '', language: '', sort: 'popularity' });
-  const [showFilters, setShowFilters] = useState(false);
-
-  const dummyMovies = [
-    { id: 1, title: 'Inception', poster_path: 'https://picsum.photos/seed/inception/300/450', overview: 'A thief who steals corporate secrets through the use of dream-sharing technology...', genre: 'Sci-Fi', release_date: '2010-07-16', language: 'English', popularity: 8.9 },
-    { id: 2, title: 'The Dark Knight', poster_path: 'https://picsum.photos/seed/darkknight/300/450', overview: 'When the menace known as the Joker wreaks havoc...', genre: 'Action', release_date: '2008-07-18', language: 'English', popularity: 9.2 },
-    { id: 3, title: 'Parasite', poster_path: 'https://picsum.photos/seed/parasite/300/450', overview: 'A poor family schemes to become employed by a wealthy family...', genre: 'Drama', release_date: '2019-05-30', language: 'Korean', popularity: 8.7 },
-    { id: 4, title: 'Dune', poster_path: 'https://picsum.photos/seed/dune/300/450', overview: 'Paul Atreides, a brilliant and gifted young man born into a great destiny...', genre: 'Sci-Fi', release_date: '2021-10-22', language: 'English', popularity: 8.5 },
-    { id: 5, title: 'Spirited Away', poster_path: 'https://picsum.photos/seed/spiritedaway/300/450', overview: 'During her family\'s move to the suburbs, a sullen 10-year-old girl wanders into a world ruled by gods, witches, and spirits...', genre: 'Animation', release_date: '2001-07-20', language: 'Japanese', popularity: 8.6 },
-    { id: 6, title: 'The Matrix', poster_path: 'https://picsum.photos/seed/matrix/300/450', overview: 'A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.', genre: 'Sci-Fi', release_date: '1999-03-31', language: 'English', popularity: 8.8 },
-    { id: 7, title: 'Oppenheimer', poster_path: 'https://picsum.photos/seed/oppenheimer/300/450', overview: 'The development of the atomic bomb during World War II.', genre: 'Drama', release_date: '2023-07-21', language: 'English', popularity: 9.0 },
-  ];
-
-  const uniqueGenres = [...new Set(dummyMovies.map(movie => movie.genre))];
-  const uniqueYears = [...new Set(dummyMovies.map(movie => new Date(movie.release_date).getFullYear()))].sort((a, b) => b - a);
-  const uniqueLanguages = [...new Set(dummyMovies.map(movie => movie.language))];
-
-  useEffect(() => {
-    setAllMovies(dummyMovies);
-    setFilteredMovies(dummyMovies);
-  }, []);
-
-  useEffect(() => {
-    let results = allMovies;
-
-    if (searchTerm) {
-      results = results.filter(movie =>
-        movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        movie.overview.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedGenre, setSelectedGenre] = useState('all');
+  const [movies, setMovies] = useState([
+    {
+      id: 1,
+      title: 'Inception',
+      poster: 'https://image.tmdb.org/t/p/w500/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg',
+      genre: 'Sci-Fi',
+      rating: 8.8,
+      duration: '148 min',
+      releaseDate: '2023-10-27',
+      description: 'A thief who steals corporate secrets through dream-sharing technology.',
+      trailer: 'https://www.youtube.com/watch?v=YoHD9XEInc0'
+    },
+    {
+      id: 2,
+      title: 'The Dark Knight',
+      poster: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
+      genre: 'Action',
+      rating: 9.0,
+      duration: '152 min',
+      releaseDate: '2023-10-28',
+      description: 'Batman faces the Joker, a criminal mastermind who wants to plunge Gotham into anarchy.',
+      trailer: 'https://www.youtube.com/watch?v=EXeTwQWrcwY'
+    },
+    {
+      id: 3,
+      title: 'Interstellar',
+      poster: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
+      genre: 'Sci-Fi',
+      rating: 8.6,
+      duration: '169 min',
+      releaseDate: '2023-10-29',
+      description: 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity\'s survival.',
+      trailer: 'https://www.youtube.com/watch?v=zSWdZVtXT7E'
+    },
+    {
+      id: 4,
+      title: 'Pulp Fiction',
+      poster: 'https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg',
+      genre: 'Crime',
+      rating: 8.9,
+      duration: '154 min',
+      releaseDate: '2023-10-30',
+      description: 'The lives of two mob hitmen, a boxer, a gangster and his wife intertwine in four tales of violence.',
+      trailer: 'https://www.youtube.com/watch?v=s7EdQ4FqbhY'
+    },
+    {
+      id: 5,
+      title: 'The Shawshank Redemption',
+      poster: 'https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg',
+      genre: 'Drama',
+      rating: 9.3,
+      duration: '142 min',
+      releaseDate: '2023-11-01',
+      description: 'Two imprisoned men bond over years, finding solace and eventual redemption.',
+      trailer: 'https://www.youtube.com/watch?v=6hB3S9bIaco'
+    },
+    {
+      id: 6,
+      title: 'The Godfather',
+      poster: 'https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg',
+      genre: 'Crime',
+      rating: 9.2,
+      duration: '175 min',
+      releaseDate: '2023-11-02',
+      description: 'The aging patriarch of an organized crime dynasty transfers control to his reluctant son.',
+      trailer: 'https://www.youtube.com/watch?v=sY1S34973zA'
     }
+  ]);
 
-    if (filters.genre) {
-      results = results.filter(movie => movie.genre === filters.genre);
-    }
+  const genres = ['all', 'Action', 'Sci-Fi', 'Drama', 'Crime', 'Horror', 'Comedy', 'Romance'];
 
-    if (filters.year) {
-      results = results.filter(movie => new Date(movie.release_date).getFullYear() === parseInt(filters.year));
-    }
+  const filteredMovies = movies.filter(movie => {
+    const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesGenre = selectedGenre === 'all' || movie.genre === selectedGenre;
+    return matchesSearch && matchesGenre;
+  });
 
-    if (filters.language) {
-      results = results.filter(movie => movie.language === filters.language);
-    }
-
-    if (filters.sort === 'popularity') {
-      results.sort((a, b) => b.popularity - a.popularity);
-    } else if (filters.sort === 'year') {
-      results.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
-    } else if (filters.sort === 'title') {
-      results.sort((a, b) => a.title.localeCompare(b.title));
-    }
-
-    setFilteredMovies(results);
-  }, [searchTerm, filters, allMovies]);
-
-  const handleFilterChange = (newFilters) => {
-    setFilters(prevFilters => ({ ...prevFilters, ...newFilters }));
+  const handleBookNow = (movieId) => {
+    navigate(`/booking/${movieId}`);
   };
 
-  const clearFilters = () => {
-    setFilters({ genre: '', year: '', language: '', sort: 'popularity' });
-    setSearchTerm('');
+  const handleViewDetails = (movieId) => {
+    navigate(`/movie/${movieId}`);
   };
-
-  const hasActiveFilters = searchTerm || filters.genre || filters.year || filters.language;
 
   return (
     <div className="bg-black text-white min-h-screen pt-20">
-      {/* Hero Header */}
-      <div className="relative py-20 px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-black to-pink-900"></div>
+      {/* Hero Section */}
+      <div className="relative py-24 px-6 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-950/40 via-black to-rose-950/40"></div>
+        
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }}></div>
+        </div>
+        
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-10 right-20 w-64 h-64 bg-purple-600 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-10 left-20 w-72 h-72 bg-pink-600 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+          <div className="absolute top-20 left-1/4 w-96 h-96 bg-amber-600 rounded-full blur-[128px] animate-pulse"></div>
+          <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-rose-600 rounded-full blur-[128px] animate-pulse" style={{animationDelay: '1.5s'}}></div>
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto text-center">
-          <div className="inline-flex items-center space-x-2 bg-purple-500/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6 border border-purple-500/20">
-            <TrendingUp className="w-4 h-4 text-purple-400" />
-            <span className="text-sm font-semibold text-purple-400">Now Playing</span>
+        <div className="relative z-10 max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-amber-500/10 to-rose-500/10 backdrop-blur-sm px-6 py-3 rounded-full mb-6 border border-amber-500/20">
+              <Sparkles className="w-5 h-5 text-amber-400" />
+              <span className="text-sm font-black tracking-wider text-amber-400">NOW SHOWING</span>
+            </div>
+            <h1 className="text-7xl md:text-8xl font-black mb-6 leading-none">
+              <span className="bg-gradient-to-r from-amber-300 via-rose-300 to-amber-300 bg-clip-text text-transparent drop-shadow-2xl">
+                Latest Movies
+              </span>
+            </h1>
+            <p className="text-xl text-gray-300 font-light max-w-2xl mx-auto">
+              Discover the hottest films and book your tickets instantly
+            </p>
           </div>
-          <h1 className="text-6xl md:text-7xl font-black mb-4">
-            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
-              All Movies
-            </span>
-          </h1>
-          <p className="text-xl text-gray-300 mb-8">
-            Discover your next favorite film from our collection
-          </p>
+
+          {/* Search and Filter Bar */}
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-gradient-to-r from-gray-900/80 to-gray-800/80 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-2xl">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Search */}
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    placeholder="Search movies..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-black/40 text-white rounded-xl border border-white/10 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all placeholder-gray-500"
+                  />
+                </div>
+
+                {/* Genre Filter */}
+                <div className="relative">
+                  <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <select
+                    value={selectedGenre}
+                    onChange={(e) => setSelectedGenre(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-black/40 text-white rounded-xl border border-white/10 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all appearance-none cursor-pointer"
+                  >
+                    {genres.map(genre => (
+                      <option key={genre} value={genre} className="bg-gray-900">
+                        {genre === 'all' ? 'All Genres' : genre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 pb-20">
-        {/* Search and Filter Bar */}
-        <div className="mb-12">
-          <div className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-2xl">
-            {/* Search Bar */}
-            <div className="relative mb-6">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search movies by title or description..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-black/40 backdrop-blur-sm text-white rounded-2xl border border-white/10 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all placeholder-gray-500"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-
-            {/* Filter Toggle Button */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2 px-4 py-2 bg-purple-600/20 border border-purple-500/30 rounded-full text-purple-400 font-semibold hover:bg-purple-600/30 transition-all mb-4"
+      {/* Movies Grid */}
+      <div className="max-w-7xl mx-auto px-6 pb-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredMovies.map((movie, index) => (
+            <div
+              key={movie.id}
+              className="group relative bg-gradient-to-br from-gray-900/60 to-gray-800/60 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/10 hover:border-amber-500/30 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-amber-500/20"
+              style={{
+                animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
+              }}
             >
-              <Filter className="w-4 h-4" />
-              <span>{showFilters ? 'Hide Filters' : 'Show Filters'}</span>
-            </button>
+              {/* Movie Poster */}
+              <div className="relative h-96 overflow-hidden">
+                <img
+                  src={movie.poster}
+                  alt={movie.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-80"></div>
+                
+                {/* Rating Badge */}
+                <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-sm px-3 py-2 rounded-full border border-amber-500/30 flex items-center space-x-1">
+                  <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                  <span className="text-sm font-bold text-amber-400">{movie.rating}</span>
+                </div>
 
-            {/* Filters */}
-            {showFilters && (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                <select
-                  className="p-4 bg-black/40 backdrop-blur-sm text-white rounded-xl border border-white/10 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  value={filters.genre}
-                  onChange={(e) => handleFilterChange({ genre: e.target.value })}
-                >
-                  <option value="">All Genres</option>
-                  {uniqueGenres.map(genre => <option key={genre} value={genre}>{genre}</option>)}
-                </select>
-
-                <select
-                  className="p-4 bg-black/40 backdrop-blur-sm text-white rounded-xl border border-white/10 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  value={filters.year}
-                  onChange={(e) => handleFilterChange({ year: e.target.value })}
-                >
-                  <option value="">All Years</option>
-                  {uniqueYears.map(year => <option key={year} value={year}>{year}</option>)}
-                </select>
-
-                <select
-                  className="p-4 bg-black/40 backdrop-blur-sm text-white rounded-xl border border-white/10 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  value={filters.language}
-                  onChange={(e) => handleFilterChange({ language: e.target.value })}
-                >
-                  <option value="">All Languages</option>
-                  {uniqueLanguages.map(lang => <option key={lang} value={lang}>{lang}</option>)}
-                </select>
-
-                <select
-                  className="p-4 bg-black/40 backdrop-blur-sm text-white rounded-xl border border-white/10 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  value={filters.sort}
-                  onChange={(e) => handleFilterChange({ sort: e.target.value })}
-                >
-                  <option value="popularity">Sort by Popularity</option>
-                  <option value="year">Sort by Year</option>
-                  <option value="title">Sort by Title</option>
-                </select>
+                {/* Play Button Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <button
+                    onClick={() => handleViewDetails(movie.id)}
+                    className="w-16 h-16 bg-amber-500/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-amber-400 transition-all hover:scale-110 shadow-lg shadow-amber-500/50"
+                  >
+                    <Play className="w-8 h-8 text-black fill-black ml-1" />
+                  </button>
+                </div>
               </div>
-            )}
 
-            {/* Active Filters Display */}
-            {hasActiveFilters && (
-              <div className="flex items-center space-x-2 flex-wrap gap-2">
-                <span className="text-gray-400 text-sm">Active filters:</span>
-                {searchTerm && (
-                  <span className="px-3 py-1 bg-purple-600/20 border border-purple-500/30 rounded-full text-sm text-purple-400 flex items-center space-x-1">
-                    <span>Search: {searchTerm}</span>
-                    <button onClick={() => setSearchTerm('')} className="hover:text-white">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-                {filters.genre && (
-                  <span className="px-3 py-1 bg-purple-600/20 border border-purple-500/30 rounded-full text-sm text-purple-400 flex items-center space-x-1">
-                    <span>{filters.genre}</span>
-                    <button onClick={() => handleFilterChange({ genre: '' })} className="hover:text-white">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-                {filters.year && (
-                  <span className="px-3 py-1 bg-purple-600/20 border border-purple-500/30 rounded-full text-sm text-purple-400 flex items-center space-x-1">
-                    <span>{filters.year}</span>
-                    <button onClick={() => handleFilterChange({ year: '' })} className="hover:text-white">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-                {filters.language && (
-                  <span className="px-3 py-1 bg-purple-600/20 border border-purple-500/30 rounded-full text-sm text-purple-400 flex items-center space-x-1">
-                    <span>{filters.language}</span>
-                    <button onClick={() => handleFilterChange({ language: '' })} className="hover:text-white">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-                <button
-                  onClick={clearFilters}
-                  className="px-3 py-1 bg-red-600/20 border border-red-500/30 rounded-full text-sm text-red-400 hover:bg-red-600/30 transition-all"
-                >
-                  Clear All
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+              {/* Movie Info */}
+              <div className="p-6">
+                <h3 className="text-2xl font-black text-white mb-2 group-hover:text-amber-400 transition-colors">
+                  {movie.title}
+                </h3>
+                
+                <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+                  {movie.description}
+                </p>
 
-        {/* Results Count */}
-        <div className="mb-6">
-          <p className="text-gray-400">
-            Showing <span className="text-white font-bold">{filteredMovies.length}</span> {filteredMovies.length === 1 ? 'movie' : 'movies'}
-          </p>
-        </div>
-
-        {/* Movie Grid */}
-        {filteredMovies.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredMovies.map(movie => (
-              <Link 
-                to={`/booking/${movie.id}`} 
-                key={movie.id} 
-                className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-gray-800 to-gray-900 border border-white/10 hover:border-purple-500/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/30"
-              >
-                <div className="relative overflow-hidden aspect-[2/3]">
-                  <img 
-                    src={movie.poster_path} 
-                    alt={movie.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  
-                  {/* Rating Badge */}
-                  <div className="absolute top-4 right-4 flex items-center space-x-1 bg-black/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-yellow-500/20">
-                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                    <span className="text-white font-bold text-sm">{movie.popularity.toFixed(1)}</span>
+                <div className="flex items-center space-x-4 mb-4 text-sm text-gray-400">
+                  <div className="flex items-center space-x-1">
+                    <Film className="w-4 h-4" />
+                    <span>{movie.genre}</span>
                   </div>
-
-                  {/* Language Badge */}
-                  <div className="absolute top-4 left-4 flex items-center space-x-1 bg-black/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-blue-500/20">
-                    <Globe className="w-3 h-3 text-blue-400" />
-                    <span className="text-blue-400 font-semibold text-xs">{movie.language}</span>
-                  </div>
-
-                  {/* Hover Button */}
-                  <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
-                    <button className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 flex items-center justify-center space-x-2">
-                      <Play className="w-4 h-4" />
-                      <span>Book Now</span>
-                    </button>
+                  <div className="flex items-center space-x-1">
+                    <Clock className="w-4 h-4" />
+                    <span>{movie.duration}</span>
                   </div>
                 </div>
 
-                <div className="p-5">
-                  <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">{movie.title}</h3>
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-sm text-purple-400 font-semibold">{movie.genre}</span>
-                    <span className="text-gray-600">•</span>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-3 h-3 text-gray-500" />
-                      <span className="text-sm text-gray-400">{new Date(movie.release_date).getFullYear()}</span>
-                    </div>
-                  </div>
-                  <p className="text-gray-400 text-xs line-clamp-2">{movie.overview}</p>
+                <div className="flex items-center space-x-1 mb-6 text-sm text-gray-400">
+                  <Calendar className="w-4 h-4" />
+                  <span>{new Date(movie.releaseDate).toLocaleDateString()}</span>
                 </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20">
-            <div className="inline-block p-8 bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-xl rounded-3xl border border-white/10">
-              <div className="w-20 h-20 mx-auto mb-4 bg-purple-600/20 rounded-full flex items-center justify-center">
-                <Search className="w-10 h-10 text-purple-400" />
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => handleViewDetails(movie.id)}
+                    className="flex-1 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl font-semibold hover:bg-white/10 transition-all duration-300 flex items-center justify-center space-x-2"
+                  >
+                    <span>Details</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleBookNow(movie.id)}
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-amber-600 to-rose-600 rounded-xl font-bold hover:shadow-lg hover:shadow-amber-500/50 transition-all duration-300 hover:scale-105"
+                  >
+                    Book Now
+                  </button>
+                </div>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2">No movies found</h3>
-              <p className="text-gray-400 mb-6">Try adjusting your search or filters</p>
-              <button
-                onClick={clearFilters}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-bold hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105"
-              >
-                Clear Filters
-              </button>
             </div>
+          ))}
+        </div>
+
+        {filteredMovies.length === 0 && (
+          <div className="text-center py-20">
+            <Film className="w-20 h-20 text-gray-700 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold text-gray-400 mb-2">No movies found</h3>
+            <p className="text-gray-500">Try adjusting your search or filter criteria</p>
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 };
