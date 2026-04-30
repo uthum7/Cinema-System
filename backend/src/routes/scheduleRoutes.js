@@ -1,0 +1,22 @@
+// backend/src/routes/scheduleRoutes.js
+const express = require('express');
+const router = express.Router();
+const {
+    getSchedules,
+    getScheduleById,
+    createSchedule,
+    updateSchedule,
+    deleteSchedule
+} = require('../controllers/scheduleController');
+
+const { protect, admin } = require('../utils/authMiddleware');
+
+router.get('/', getSchedules);
+router.get('/:id', getScheduleById);
+
+// Admin routes
+router.post('/', protect, admin, createSchedule);
+router.put('/:id', protect, admin, updateSchedule);
+router.delete('/:id', protect, admin, deleteSchedule);
+
+module.exports = router;
